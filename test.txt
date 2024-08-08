@@ -1,0 +1,24 @@
+Proposal for Data Pipeline Enhancement
+Objective
+To optimize our data pipeline for Snowflake-based datasets, we propose incorporating a clause that prevents duplicate data from entering our system. This enhancement will be added to the end of our queries to ensure only new snapshot data is processed.
+
+Implementation
+We will implement the following SQL clause:
+
+sql
+Copy code
+AND NOT EXISTS (
+    SELECT 1 
+    FROM my_db m
+    WHERE m.snapshot_dt = s.snapshot_dt
+);
+This clause checks if a snapshot date already exists in our system (my_db). If a match is found, the data is excluded from the processing pipeline, effectively preventing redundancy.
+
+Technical Rationale
+Performance Optimization: The use of NOT EXISTS with SELECT 1 is chosen for its efficiency. NOT EXISTS is generally more performant than alternatives like NOT IN, especially with larger datasets, as it allows for short-circuiting as soon as a match is found.
+
+Snowflake Optimization: Leveraging Snowflake's automatic micro-partitioning and metadata caching, this approach minimizes the data scanned and enhances query execution speed. By filtering data at the source, we reduce the need for additional downstream processing.
+
+Conclusion
+By adopting this strategy, we ensure that our data pipeline remains efficient and reliable, avoiding the pitfalls of redundant data processing. This enhancement aligns with our commitment to maintaining high-performance data operations within Snowflake's optimized architecture.
+
